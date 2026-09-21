@@ -1,17 +1,43 @@
-# AI Synthesis — Product Health & Insights Summary
-
-> **Module 2 · Lab 1.** Repo file `02-discovery/ai-synthesis.md` — part of your submission.
-> Do the lab in the **Module 2 · Exercise 1 Guide** (linked from the Module 2 deck), then click **⬇ Download .md** — it saves as this exact file. Commit it here.
-> It feeds the **Research & Competitive Analysis** slide of your Module 6 final deck, alongside `competitive-and-journey.md`.
+# AI Synthesis, Product Health & Insights Summary (Module 2)
 
 ## Responses
+- **Moment of misery / red flag #1 (e.g., “user gave up after 3 tries”):** 1. Elena's mid-route crash (UXR-03, BUG-2031). The app dies and takes the remaining stops with it, so she phones the office and has someone read the route to her off a screen. It cost her 20 minutes. The trigger is a stop list over about 40 stops, so the crash likely hits the biggest routes, which are probably the highest-volume customers. That is an inference, so check it against account data. It's also why five of seven drivers keep a paper manifest (UXR-12). They've already learned to expect the app to fail, and that expectation is hard to undo once it sets in.
+- **Moment of misery / red flag #2:** 2. The dispatch loop is stale in both directions (UXR-02 and 09, BUG-2044 and 2072). A reassignment takes 8-15 minutes to reach the driver, with no push notification, so drivers drive the wrong way. Going the other way, a delivered stop can show as "in progress" on the dispatcher's board for up to an hour. Dispatchers now run the operation on WhatsApp, which means real activity is happening off-platform. That also undermines the admin reporting the regional manager says is why they bought the product (UXR-10). Reporting built on lagging or missing status data will eventually be wrong, and that puts the renewal at risk.
+- **Moment of misery / red flag #3:** 3. Proof-of-delivery photos fail silently (UXR-07, BUG-2061). About 35% of uploads fail on weak signal. There's no retry queue and no success confirmation, so drivers can't tell whether it worked and retake the photo three times at the doorstep. A silent failure is worse than a loud one, because nobody knows the proof is missing until someone disputes the delivery. I'm inferring that missing proof leads to disputes or billing problems, so confirm how your customers use POD. Also, it's currently rated High, and I'd argue it deserves more attention than that suggests.
+- **Product Health & Insights Summary (Claude's output):** Product Health & Insights Summary
+Sep 21, 2026 · @StuartB
+Executive Summary
+Product health is under strain: the platform's administrative depth has won enterprise customers, but the frontline experience that drives daily adoption is failing on both stability and usability. The tension is that these problems compound rather than trade off, since crashes, offline gaps and 8–60 minute sync delays erode trust in the app, while a three-tap completion flow and buried core actions make it slower than the texting, WhatsApp and paper-manifest workarounds users now prefer. That gap between capability and daily reliability is already visible commercially, with an enterprise ops manager evaluating a leaner competitor and a regional manager reporting that renewal is at risk.
+Thematic Synthesis
+Twelve user research notes and ten bug reports group into five themes, ordered by severity, plus a consolidated line for low-priority debt. Severity follows the logged bug rating; where a pain point rests on research alone, it is analyst-assessed and marked (assessed).
+Technical Stability & Offline Resilience
+The app fails under the conditions drivers work in every day: long routes, weak signal and no connectivity. These failures are lossy rather than merely disruptive, since a crash discards the remaining route and a failed upload leaves no trace. Users have compensated with paper manifests (five of seven drivers in one focus group), morning screenshots and repeated retries, which signals that the app is no longer trusted as the system of record.
+• Critical: Crash mid-route on Android 12/13 when a stop list exceeds roughly 40 stops loses the remaining route until it is reloaded from the server; one driver lost about 20 minutes and had the office read her stops aloud (BUG-2031, UXR-03).
+• High: Offline mode does not cache the stop list, leaving a blank route without connectivity and blocking rural routes entirely; one driver screenshots her route each morning as a backup (BUG-2050, UXR-06).
+• High: Proof-of-delivery photo uploads fail silently on weak signal (about 35%), with no retry queue or success confirmation, so drivers retake photos up to three times (BUG-2061, UXR-07).
+Platform Sync
+Information moves too slowly in both directions between dispatch and the field, so neither side can act on the current state of a route. Dispatchers reassign routes that drivers do not see for up to 15 minutes, while drivers complete stops that dispatchers do not see as complete for up to an hour. Teams fill the gap with a WhatsApp group that one dispatcher calls the real system, which moves operational data outside the product. The Medium rating on the second issue likely understates its impact, as it compounds the first and undermines confidence in the dashboard.
+• Critical: Dispatch reassignments take 8–15 minutes to reach the driver app, with no push notification on route change, so drivers act on stale routes and drive the wrong way (BUG-2044, UXR-02).
+• Medium: Driver status changes lag 20–60 minutes on the dispatcher dashboard, showing "in progress" for completed stops; night-shift dispatchers report they cannot trust the board (BUG-2072, UXR-09).
+Core Workflow & Discoverability
+Accumulated feature additions have pushed the most frequent driver actions out of easy reach, and little has been removed. Start Route, which one driver uses about 30 times a day, and Mark Delivered sit two to three levels deep, and completing a stop takes three taps across three screens. All seven drivers in the focus group said the speed of core actions matters more than any new feature. The same density makes the app hard to learn: a driver in their second week still could not find where to report a failed delivery.
+• High: Mark Delivered requires three taps across three screens with no single-tap completion; it is the top frontline complaint and has led drivers to text dispatchers instead (BUG-2055, UXR-01).
+• Medium: Start Route and Mark Delivered are buried two to three levels deep after recent feature additions, with no configurable home screen (BUG-2079, UXR-11).
+• Medium (assessed): Menu depth prevents onboarding within a day, and frontline users report using roughly 5% of the product without being able to find it (UXR-04, UXR-08).
+Adoption & Renewal Risk
+The frontline issues above are beginning to affect purchasing decisions. Customers credit the administrative reporting as the reason they bought, yet the daily driver experience is depressing adoption, and the breadth that once differentiated the product is being read as a liability by at least one enterprise buyer. Off-platform workarounds may also weaken the data behind the reporting that customers value most.
+• High (assessed): A regional manager reports that renewal is at risk because the daily driver experience is dragging down adoption, despite strong admin reporting (UXR-10).
+• High (assessed): An enterprise ops manager is evaluating a leaner competitor that "just does routing well," describing a product that does everything but whose relevant features frontline staff cannot find (UXR-04).
+• Medium (assessed): Off-platform workarounds are routine: a WhatsApp group for dispatch, texts to dispatchers to confirm deliveries, and paper manifests and route screenshots as backups (UXR-01, 02, 06, 12).
+Algorithmic Curation
+Route optimization lacks the local knowledge drivers rely on, so its output is routinely overridden and its credibility erodes. Evidence is currently limited to one driver interview alongside the logged defect, so the breadth of impact remains unquantified.
+• Medium: Route optimization ignores road closures, live traffic and known access constraints such as loading docks and one-way streets, and offers no way to save local overrides; one driver reports overriding it daily after being routed down a road closed for months (BUG-2068, UXR-05).
+Minor Technical Debt (Low): GPS pin drift of up to 200m in dense urban areas causes incorrect "arrived at stop" detection (BUG-2085), and the onboarding tutorial cannot be reopened after first launch, leaving no in-app help for reporting a failed delivery (BUG-2090).
+- **Did the AI catch the specific moment of misery / pain point you found in Step 1?:** Yes it did.
+- **Did it smooth over a critical frustration into a generic bullet point?:** Yes, it made it more clear what the frustration was.
+- **Did the AI try to suggest features or a roadmap despite the constraints?:** yes it did.
+- **Logic leak / hallucination #1 (e.g., “AI suggested a new search bar feature, roadmap leak”):** 1. The crash bullet (the block you have selected) glosses over a contradiction. I wrote that the crash "loses the remaining route until it is reloaded from the server." That matches BUG-2031, which says the route "must be reloaded from the server." But Elena (UXR-03) couldn't recover that way. She had to phone the office and have her stops read to her. If a reload worked, she wouldn't have needed the office. So either the reload failed for her, or the bug report understates the problem. The word "until" hid that gap and made the two sources look consistent. It matters because it changes what the Critical actually is: a recoverable data loss, or one with no recovery path in the field. The source notes don't say which.
+- **Logic leak / hallucination #2:** 2. The Executive Summary claims more than the evidence shows. Two phrases stand out:
 
-- **Moment of misery / red flag #1:** _(not filled in)_
-- **Moment of misery / red flag #2:** _(not filled in)_
-- **Moment of misery / red flag #3:** _(not filled in)_
-- **Product Health & Insights Summary (Claude's output):** _(not filled in)_
-- **Did the AI catch the specific moment of misery / pain point you found in Step 1?:** _(not filled in)_
-- **Did it smooth over a critical frustration into a generic bullet point?:** _(not filled in)_
-- **Did the AI try to suggest features or a roadmap despite the constraints?:** _(not filled in)_
-- **Logic leak / hallucination #1:** _(not filled in)_
-- **Logic leak / hallucination #2:** _(not filled in)_
+"Has won enterprise customers." This rests on one quote from one regional manager (UXR-10). I generalized it to plural customers, and the same slip appears in "Customers credit the administrative reporting" under Adoption & Renewal Risk. The "strong admin, weak frontline" tension that frames the whole summary has a single source.
+"Workarounds users now prefer." Nothing in the notes says users prefer the workarounds. Paper manifests are kept "just in case the app dies," and screenshots are a backup. Only Diego's texting and the dispatchers' WhatsApp group actually replace the app, and neither is described as a preference.
