@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velocity Roadmap</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #f0f2f5;
+    --border: #e2e5ea;
+    --text: #16191f;
+    --muted: #5f6673;
+    --accent: #1f5eff;
+    --now: #1f5eff;
+    --next: #7a4cff;
+    --later: #6b7280;
+    --cut: #c2410c;
+    --qw-bg: #dcf5e7; --qw-fg: #11643a;
+    --mp-bg: #e3ebff; --mp-fg: #1d47b8;
+    --fi-bg: #fdf1d6; --fi-fg: #8a5a00;
+    --ts-bg: #fde3e1; --ts-fg: #a3261c;
+    --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --surface: #171a21;
+      --surface-2: #1e222b;
+      --border: #2a2f3a;
+      --text: #e8eaef;
+      --muted: #9aa1ae;
+      --accent: #6d95ff;
+      --now: #6d95ff;
+      --next: #a88bff;
+      --later: #9aa1ae;
+      --cut: #f08a5d;
+      --qw-bg: #123524; --qw-fg: #7fe0a8;
+      --mp-bg: #172549; --mp-fg: #9db8ff;
+      --fi-bg: #3a2c0c; --fi-fg: #f3c865;
+      --ts-bg: #3d1614; --ts-fg: #ff9d94;
+      --shadow: 0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  header { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--now), var(--next));
+    display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 18px; letter-spacing: -.5px;
+  }
+  h1 { margin: 0; font-size: 22px; letter-spacing: -.3px; }
+  .sub { color: var(--muted); font-size: 13px; }
+
+  .anchors { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .anchor { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .anchor .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .anchor .v { font-size: 14px; margin-top: 2px; }
+  .anchor .big { font-size: 22px; font-weight: 700; letter-spacing: -.5px; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .toolbar .label { font-size: 12px; color: var(--muted); margin-right: 4px; }
+  .chip {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: var(--bg); }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .search {
+    margin-left: auto; min-width: 200px; flex: 0 1 260px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 8px; padding: 7px 10px; font-size: 13px;
+  }
+  .btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer;
+  }
+  .btn:hover, .chip:hover { border-color: var(--muted); }
+
+  .lanes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .lanes { grid-template-columns: 1fr; } .search { margin-left: 0; flex: 1 1 100%; } }
+
+  .lane {
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px; min-height: 220px; display: flex; flex-direction: column; gap: 10px;
+    transition: outline-color .15s;
+    outline: 2px dashed transparent; outline-offset: -4px;
+  }
+  .lane.drag-over { outline-color: var(--accent); }
+  .lane-head { border-top: 4px solid var(--lane-color); margin: -14px -14px 4px; padding: 12px 14px 0; border-radius: 14px 14px 0 0; }
+  .lane-title { display: flex; align-items: center; justify-content: space-between; }
+  .lane-title h2 { margin: 0; font-size: 15px; letter-spacing: .04em; color: var(--lane-color); }
+  .count { font-size: 12px; color: var(--muted); background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; }
+  .lane-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; box-shadow: var(--shadow); cursor: grab;
+    border-left: 3px solid var(--q-fg);
+  }
+  .card:active { cursor: grabbing; }
+  .card.dragging { opacity: .45; }
+  .card.hidden { display: none; }
+  .card-top { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+  .card h3 { margin: 0; font-size: 14.5px; line-height: 1.35; }
+  .id { color: var(--muted); font-weight: 600; margin-right: 4px; font-variant-numeric: tabular-nums; }
+  .badge {
+    flex-shrink: 0; font-size: 11px; font-weight: 700; letter-spacing: .02em;
+    padding: 3px 8px; border-radius: 999px; background: var(--q-bg); color: var(--q-fg); white-space: nowrap;
+  }
+  .rationale { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+  .card.collapsed .rationale { display: none; }
+
+  .q-qw { --q-bg: var(--qw-bg); --q-fg: var(--qw-fg); }
+  .q-mp { --q-bg: var(--mp-bg); --q-fg: var(--mp-fg); }
+  .q-fi { --q-bg: var(--fi-bg); --q-fg: var(--fi-fg); }
+  .q-ts { --q-bg: var(--ts-bg); --q-fg: var(--ts-fg); }
+
+  .cut {
+    margin-top: 28px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface);
+    padding: 16px; outline: 2px dashed transparent; outline-offset: -4px;
+  }
+  .cut.drag-over { outline-color: var(--cut); }
+  .cut-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .cut-head h2 { margin: 0; font-size: 15px; letter-spacing: .04em; color: var(--cut); }
+  .cut-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-top: 12px; }
+  .cut .card { background: var(--surface-2); box-shadow: none; }
+  .cut .card h3 { text-decoration: line-through; text-decoration-color: var(--cut); text-decoration-thickness: 1.5px; }
+
+  .empty { font-size: 13px; color: var(--muted); text-align: center; padding: 20px 0; border: 1px dashed var(--border); border-radius: 10px; }
+
+  footer { margin-top: 24px; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
+
+  @media print {
+    body { background: #fff; }
+    .toolbar, .hint { display: none; }
+    .card { box-shadow: none; break-inside: avoid; }
+    .lanes { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">RL</div>
+      <div>
+        <h1>RouteLogic Velocity · Spotlight Roadmap</h1>
+        <div class="sub">Team: 2 engineers + 1 designer + 1 CS lead · Persona: Enterprise Ops Manager</div>
+      </div>
+    </div>
+    <div class="sub">Prioritised with Effort vs. Value</div>
+  </header>
+
+  <section class="anchors" aria-label="Strategic anchors">
+    <div class="anchor">
+      <div class="k">Primary metric</div>
+      <div class="big">18%</div>
+      <div class="v">Coordinator daily workflow completion (Open → Daily Report)</div>
+    </div>
+    <div class="anchor">
+      <div class="k">Guardrail · Manager CSAT</div>
+      <div class="big">3.9 / 4.5</div>
+      <div class="v">Compliance / Reporting clusters (5.0 scale)</div>
+    </div>
+    <div class="anchor">
+      <div class="k">Moment of misery</div>
+      <div class="v">"It does everything, which is the problem." Staff use ~5% and can't find it. Renewal at risk.</div>
+    </div>
+    <div class="anchor">
+      <div class="k">Pilot</div>
+      <div class="v">4 weeks · 3 accounts, then GA in weeks 5–8</div>
+    </div>
+  </section>
+
+  <div class="toolbar" role="toolbar" aria-label="Filters">
+    <span class="label">Quadrant:</span>
+    <button class="chip" data-filter="all" aria-pressed="true">All</button>
+    <button class="chip" data-filter="qw" aria-pressed="false"><span class="dot" style="background:var(--qw-fg)"></span>Quick Win</button>
+    <button class="chip" data-filter="mp" aria-pressed="false"><span class="dot" style="background:var(--mp-fg)"></span>Major Project</button>
+    <button class="chip" data-filter="fi" aria-pressed="false"><span class="dot" style="background:var(--fi-fg)"></span>Fill-In</button>
+    <button class="chip" data-filter="ts" aria-pressed="false"><span class="dot" style="background:var(--ts-fg)"></span>Time Sinker</button>
+    <input class="search" id="search" type="search" placeholder="Search features…" aria-label="Search features">
+    <button class="btn" id="toggle">Hide rationale</button>
+    <button class="btn" id="reset">Reset</button>
+    <button class="btn" onclick="window.print()">Print</button>
+  </div>
+
+  <main class="lanes">
+    <section class="lane" data-lane="now" style="--lane-color: var(--now)">
+      <div class="lane-head">
+        <div class="lane-title"><h2>NOW</h2><span class="count" data-count="now">0</span></div>
+        <div class="lane-desc">Pilot · 4 weeks, 3 accounts</div>
+      </div>
+    </section>
+    <section class="lane" data-lane="next" style="--lane-color: var(--next)">
+      <div class="lane-head">
+        <div class="lane-title"><h2>NEXT</h2><span class="count" data-count="next">0</span></div>
+        <div class="lane-desc">GA Release · weeks 5–8</div>
+      </div>
+    </section>
+    <section class="lane" data-lane="later" style="--lane-color: var(--later)">
+      <div class="lane-head">
+        <div class="lane-title"><h2>LATER</h2><span class="count" data-count="later">0</span></div>
+        <div class="lane-desc">Backlog</div>
+      </div>
+    </section>
+  </main>
+
+  <section class="cut" data-lane="cut">
+    <div class="cut-head">
+      <h2>CUT LIST</h2>
+      <span class="count" data-count="cut">0</span>
+    </div>
+    <div class="lane-desc">Deliberately not building. These features add surface area or sit outside the coordinator's core sequence.</div>
+    <div class="cut-grid" data-drop="cut"></div>
+  </section>
+
+  <footer>
+    <span class="hint">Tip: drag cards between lanes to explore trade-offs. Click a card to expand or collapse it.</span>
+    <span>RouteLogic Velocity · Spotlight / Velocity initiative</span>
+  </footer>
+</div>
+
+<script>
+  const QUAD = {
+    qw: "Quick Win",
+    mp: "Major Project",
+    fi: "Fill-In",
+    ts: "Time Sinker"
+  };
+
+  const INITIAL = [
+    { id: "B3", name: "Shift Handoff Wizard", q: "qw", lane: "now",
+      why: "UXR backs it, it's a step in the sequence, and it saves about 6.8 min/day. Build it as a streamlined path, not a new module." },
+    { id: "B5", name: "Step Progress Indicator", q: "qw", lane: "now",
+      why: "It speaks directly to \"can't find the 5%\": it makes the 6-step sequence visible and tells coordinators what's next. It's the cheapest completion lever on the list." },
+
+    { id: "B1", name: "One-Click Compliance Checklist", q: "mp", lane: "next",
+      why: "At 14.6 minutes, compliance is the heaviest step in the sequence and the lowest-CSAT cluster (3.9), so it's the biggest single lever on the 18%. It needs regulatory-accuracy QA, which puts it just out of Quick Win range." },
+    { id: "B2", name: "Smart Daily Report Auto-Fill", q: "mp", lane: "next",
+      why: "It closes the final step of the sequence. But AI errors put Reporting CSAT (4.5) at risk, and this cluster isn't the one that's broken." },
+
+    { id: "B9", name: "Compliance Audit Trail Export", q: "fi", lane: "later",
+      why: "It's cheap retention insurance for the Compliance CSAT guardrail, but it doesn't move the metric." },
+    { id: "B10", name: "In-App Coordinator Training", q: "fi", lane: "later",
+      why: "It treats the symptom: if the 5% needs a tutorial to find, the product should be simpler." },
+
+    { id: "B4", name: "Mobile-First Coordinator Dashboard", q: "ts", lane: "cut",
+      why: "It aims at the right pain (\"can't find the 5%\"), but a new platform is a rebuild, not a pilot. Nothing shows mobile is where coordinators drop off." },
+    { id: "B6", name: "Driver Alert Notifications", q: "ts", lane: "cut",
+      why: "It serves drivers, not the coordinator's sequence, and adds more noise to a product whose problem is too much of everything." },
+    { id: "B7", name: "Contextual AI ETA Display", q: "ts", lane: "cut",
+      why: "Adoption is 11% and it isn't in the completion path. Surfacing more AI adds to the complexity that's driving churn." },
+    { id: "B8", name: "Fleet Analytics Manager View", q: "ts", lane: "cut",
+      why: "This is Sales pull, and it's the opposite of \"just does routing well.\" It adds surface area and does nothing for coordinator completion." }
+  ];
+
+  let features = INITIAL.map(f => ({ ...f }));
+  let filter = "all";
+  let query = "";
+  let collapsedAll = false;
+  const collapsed = new Set();
+
+  const containers = {
+    now: document.querySelector('[data-lane="now"]'),
+    next: document.querySelector('[data-lane="next"]'),
+    later: document.querySelector('[data-lane="later"]'),
+    cut: document.querySelector('[data-drop="cut"]')
+  };
+  const dropZones = {
+    now: containers.now,
+    next: containers.next,
+    later: containers.later,
+    cut: document.querySelector('.cut')
+  };
+
+  function esc(s) {
+    return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function render() {
+    Object.entries(containers).forEach(([lane, el]) => {
+      el.querySelectorAll('.card, .empty').forEach(n => n.remove());
+      const items = features.filter(f => f.lane === lane);
+      items.forEach(f => {
+        const card = document.createElement('article');
+        const matchesFilter = filter === "all" || f.q === filter;
+        const hay = (f.id + " " + f.name + " " + f.why).toLowerCase();
+        const matchesQuery = !query || hay.includes(query);
+        card.className = `card q-${f.q}` +
+          (matchesFilter && matchesQuery ? "" : " hidden") +
+          (collapsed.has(f.id) ? " collapsed" : "");
+        card.draggable = true;
+        card.dataset.id = f.id;
+        card.tabIndex = 0;
+        card.setAttribute('aria-label', `${f.id} ${f.name}, ${QUAD[f.q]}`);
+        card.innerHTML = `
+          <div class="card-top">
+            <h3><span class="id">${esc(f.id)}</span>${esc(f.name)}</h3>
+            <span class="badge">${QUAD[f.q]}</span>
+          </div>
+          <p class="rationale">${esc(f.why)}</p>`;
+        card.addEventListener('dragstart', e => {
+          card.classList.add('dragging');
+          e.dataTransfer.setData('text/plain', f.id);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        card.addEventListener('dragend', () => card.classList.remove('dragging'));
+        card.addEventListener('click', () => toggleCard(f.id));
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(f.id); }
+        });
+        el.appendChild(card);
+      });
+      const visible = el.querySelectorAll('.card:not(.hidden)').length;
+      if (visible === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = items.length ? 'No matches' : 'Drop features here';
+        el.appendChild(empty);
+      }
+      document.querySelector(`[data-count="${lane}"]`).textContent = items.length;
+    });
+  }
+
+  function toggleCard(id) {
+    collapsed.has(id) ? collapsed.delete(id) : collapsed.add(id);
+    render();
+  }
+
+  Object.entries(dropZones).forEach(([lane, zone]) => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', e => { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const f = features.find(x => x.id === id);
+      if (f && f.lane !== lane) { f.lane = lane; render(); }
+    });
+  });
+
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      filter = chip.dataset.filter;
+      document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
+      render();
+    });
+  });
+
+  document.getElementById('search').addEventListener('input', e => {
+    query = e.target.value.trim().toLowerCase();
+    render();
+  });
+
+  const toggleBtn = document.getElementById('toggle');
+  toggleBtn.addEventListener('click', () => {
+    collapsedAll = !collapsedAll;
+    collapsed.clear();
+    if (collapsedAll) features.forEach(f => collapsed.add(f.id));
+    toggleBtn.textContent = collapsedAll ? 'Show rationale' : 'Hide rationale';
+    render();
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    features = INITIAL.map(f => ({ ...f }));
+    filter = "all"; query = ""; collapsedAll = false; collapsed.clear();
+    document.getElementById('search').value = "";
+    document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.filter === 'all' ? 'true' : 'false'));
+    toggleBtn.textContent = 'Hide rationale';
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
